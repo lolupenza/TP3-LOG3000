@@ -1,3 +1,18 @@
+/*
+ * style.css — Mise en forme de la calculatrice Flask
+ *
+ * Feuille de style chargée par templates/index.html.
+ * Elle centre la calculatrice dans la page, met en forme l'écran (#display)
+ * et dispose les boutons en grille de 4 colonnes.
+ *
+ * Couleurs :
+ *   #333     fond de la calculatrice
+ *   #666     boutons des chiffres
+ *   #ff9500  boutons des opérateurs (+, -, *, /, =)
+ */
+
+/* ---------- Mise en page générale ---------- */
+/* Centre la calculatrice horizontalement et verticalement dans la fenêtre. */
 body {
    font-family: Arial, sans-serif;
    background-color: #f0f0f0;
@@ -24,6 +39,9 @@ h1 {
    font-size: 36px;
 }
 
+/* ---------- Écran ---------- */
+
+/* Champ qui affiche l'expression saisie ou le résultat, aligné à droite. */
 #display {
    width: 100%;
    height: 80px;
@@ -37,6 +55,7 @@ h1 {
    color: #fff;
 }
 
+/* ---------- Boutons ---------- */
 .buttons {
    display: grid;
    grid-template-columns: repeat(4, 1fr);
@@ -59,6 +78,9 @@ h1 {
    background-color: #555;
 }
 
+/* ---------- Boutons ---------- */
+
+/* Boutons des opérateurs, en orange pour les distinguer des chiffres. */
 .operator {
    background-color: #ff9500;
 }
