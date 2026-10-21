@@ -123,3 +123,19 @@ class TestApp(unittest.TestCase):
         with self.assertRaises(ValueError):
             grand_nombre = '9' * 500
             calculate(f"{grand_nombre} + 1")
+
+    def test_None(self):
+        with self.assertRaises(ValueError):
+            calculate(None)
+
+    def test_None_with_operator(self):
+        with self.assertRaises(ValueError):
+            calculate('None+2')
+
+    def test_True(self):
+        with self.assertRaises(ValueError):
+            calculate('True')
+
+    def test_False(self):
+        with self.assertRaises(ValueError):
+            calculate('False')
