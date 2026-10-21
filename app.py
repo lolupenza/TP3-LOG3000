@@ -19,7 +19,7 @@ def calculate(expr: str):
     les espaces sont ignorés.
 
     Args: 
-        expr (str): expression d'entrée comme: "2 + 2" or "3/1.5"
+        expr (str): expression d'entrée comme: "2 + 2" or "3/4"
 
     Returns:
         float: resultat de l'opération et les deux opérandes de l'expression
@@ -31,7 +31,7 @@ def calculate(expr: str):
     Examples:
         >>> calculate("2 + 2")
             4
-        >>> calculate("4/3")
+        >>> calculate("3/4")
             0.75
     """
     # soulève une erreur si l'expression n'est pas une chaîne ou est vide
