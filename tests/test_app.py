@@ -3,6 +3,7 @@ from app import calculate, index
 
 
 class TestApp(unittest.TestCase):
+    #tests calculate
     def test_expression_vide(self):
         with self.assertRaises(ValueError):
             calculate('')
@@ -139,3 +140,27 @@ class TestApp(unittest.TestCase):
     def test_False(self):
         with self.assertRaises(ValueError):
             calculate('False')
+
+    #tests index
+    def test_requete_patch(self):
+        #should not be able to use this type of request
+    
+    def test_requete_get(self):
+        with self.assertRaises(ValueError):
+            index()
+
+    def test_requete_post(self):
+
+    def test_expression_vide(self):
+
+    def test_operandes_pas_chiffres(self):
+
+    def test_expression_pas_string(self):
+
+    def test_expression_aucun_operateur(self):
+
+    def test_expression_deux_operateurs(self):
+
+    def test_expression_operateur_debut(self):
+
+    def test_expression_operateur_fin(self):
