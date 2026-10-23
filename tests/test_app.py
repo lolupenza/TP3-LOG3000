@@ -1,8 +1,8 @@
 import unittest
-from app import calculate, index
+from app import calculate, index, app
 
 
-class TestApp(unittest.TestCase):
+class TestCalculate(unittest.TestCase):
     #tests calculate
     def test_expression_vide(self):
         with self.assertRaises(ValueError):
@@ -141,26 +141,36 @@ class TestApp(unittest.TestCase):
         with self.assertRaises(ValueError):
             calculate('False')
 
-    #tests index
-    def test_requete_patch(self):
-        #should not be able to use this type of request
+class TestIndex(unittest.TestCase):
+    def setUp(self):
+        app.config['TESTING'] = True
+        self.client = app.test_client()
+
+    def test_requete_non_premises(self):
+        for method in (self.client.put, self.client.delete, self.client.patch):
+            with self.subTest(method=method.__name__):
+                self.assertEqual(method('/').status_code, 405)
     
     def test_requete_get(self):
-        with self.assertRaises(ValueError):
-            index()
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
 
     def test_requete_post(self):
+        response = self.client.post('/', data={'display': '2+3'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'5', response.data)
 
-    def test_expression_vide(self):
+    def test_champ_display_absent(self):
+        response = self.client.post('/', data={})
+        self.assertEqual(response.status_code, 400)
 
-    def test_operandes_pas_chiffres(self):
+    def test_expression_invalide(self):
+        expressions_invalides =['1', '1++', 'a-2', '-2', '2*', '          ', '', 17, 'abcd', '2/0', None, '8*nan', 'INF+1']
+        for expression in expressions_invalides:
+            response = self.client.post('/', data={'display': expression})
+            self.assertEqual(response.status_code, 400)
+            self.assertIn(b'Error', response.data)
 
-    def test_expression_pas_string(self):
-
-    def test_expression_aucun_operateur(self):
-
-    def test_expression_deux_operateurs(self):
-
-    def test_expression_operateur_debut(self):
-
-    def test_expression_operateur_fin(self):
+    def test_json(self):
+        response = self.client.post('/', json={'display':'2+3'})
+        self.assertEqual(response.status_code, 400)
