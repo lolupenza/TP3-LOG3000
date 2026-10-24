@@ -1,18 +1,4 @@
 <!DOCTYPE html>
-{#
-   index.html — Interface de la calculatrice Flask
-
-   Page affichée par la route « / » de app.py. Elle contient :
-      - un écran (#display) qui montre l'expression saisie ou le résultat ;
-      - des boutons pour les chiffres 0 à 9, les opérateurs +, -, *, / et C (effacer) ;
-      - un bouton « = » qui envoie le formulaire en POST au serveur.
-
-   Variables reçues de Flask :
-      result : résultat du calcul (ou message d'erreur) affiché dans l'écran
-
-   Fichiers liés :
-      static/style.css : mise en forme de la calculatrice
-#}
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -51,18 +37,11 @@
 </div>
 
 <script>
-   /**
-    * Ajoute un caractère à la fin de l'expression affichée à l'écran.
-    * @param {string} value - Chiffre ou opérateur à ajouter.
-    */
    function appendToDisplay(value) {
       const display = document.getElementById('display');
       display.value += value;
    }
 
-   /**
-    * Efface l'expression affichée à l'écran.
-    */
    function clearDisplay() {
       document.getElementById('display').value = '';
    }
