@@ -36,7 +36,7 @@ def multiply(a,b):
         float: produit des deux opérandes
 
     """
-    return a ** b
+    return a * b
 
 def divide(a,b):
     """
