@@ -84,8 +84,11 @@ def calculate(expr: str):
     if not math.isfinite(a) or not math.isfinite(b):
         raise ValueError("operands must be finite numbers")
 
-    # appelle l'opérateur avec les deux opérandes et retourne le résultat
-    return OPS[op_char](a, b)
+    # appelle l'opérateur avec les deux opérandes et traduit la division par zéro
+    try:
+        return OPS[op_char](a, b)
+    except ZeroDivisionError as error:
+        raise ValueError("division by zero") from error
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -102,17 +105,24 @@ def index():
         pas le format attendu.
     """
     result = ""
+    status_code = 200
     # si c'est une requête POST, passe directement à la ligne 101 lors d'une requête GET
     if request.method == 'POST':
         # récupère l'expression dans le champ 'display'
-        expression = request.form.get('display', '')
+        if 'display' not in request.form:
+            return render_template('index.html', result="Error: missing display field"), 400
+
+        expression = request.form['display']
         try:
             # récupère le résultat de 'calculate' avec l'expression d'entrée
             result = calculate(expression)
-        except Exception as e:
+            if not math.isfinite(result):
+                raise ValueError("result must be finite")
+        except (ValueError, ZeroDivisionError) as e:
             # enregistre le message d'erreur soulevé par la fonction
             result = f"Error: {e}"
-    return render_template('index.html', result=result)
+            status_code = 400
+    return render_template('index.html', result=result), status_code
 
 if __name__ == '__main__':
     app.run(debug=True)
