@@ -1,3 +1,5 @@
+import math
+
 from flask import Flask, request, render_template
 from operators import add, subtract, multiply, divide
 
@@ -91,17 +93,24 @@ def index():
         pas le format attendu.
     """
     result = ""
+    status_code = 200
     # si c'est une requête POST, passe directement à la ligne 101 lors d'une requête GET
     if request.method == 'POST':
         # récupère l'expression dans le champ 'display'
-        expression = request.form.get('display', '')
+        if 'display' not in request.form:
+            return render_template('index.html', result="Error: missing display field"), 400
+
+        expression = request.form['display']
         try:
             # récupère le résultat de 'calculate' avec l'expression d'entrée
             result = calculate(expression)
-        except Exception as e:
+            if not math.isfinite(result):
+                raise ValueError("result must be finite")
+        except (ValueError, ZeroDivisionError) as e:
             # enregistre le message d'erreur soulevé par la fonction
             result = f"Error: {e}"
-    return render_template('index.html', result=result)
+            status_code = 400
+    return render_template('index.html', result=result), status_code
 
 if __name__ == '__main__':
     app.run(debug=True)
