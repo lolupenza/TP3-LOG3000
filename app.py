@@ -1,4 +1,5 @@
 import math
+import re
 
 from flask import Flask, request, render_template
 from operators import add, subtract, multiply, divide
@@ -40,8 +41,8 @@ def calculate(expr: str):
     if not expr or not isinstance(expr, str):
         raise ValueError("empty expression")
 
-    # retire les espaces de l'expression
-    s = expr.replace(" ", "")
+    # retire les espaces en début et en fin sans fusionner les chiffres
+    s = expr.strip()
 
     # mise en place de la lecture de l'expression
     op_pos = -1
@@ -67,13 +68,21 @@ def calculate(expr: str):
     #opérande de droite
     right = s[op_pos+1:]
 
+    # Seuls les entiers et la notation scientifique sans signe d'exposant sont acceptés.
+    operand_pattern = r"\d+(?:[eE]\d+)?"
+    if not re.fullmatch(operand_pattern, left.strip()) or not re.fullmatch(operand_pattern, right.strip()):
+        raise ValueError("operands must be valid numbers")
+
     # on essaie de caster les opérandes en float pour s'assurer que ce sont des nombres
     try:
-        a = float(left)
-        b = float(right)
-    except ValueError:
+        a = float(left.strip())
+        b = float(right.strip())
+    except (ValueError, OverflowError):
         # soulève une erreur si au moins une opérande n'est pas un nombre
         raise ValueError("operands must be numbers")
+
+    if not math.isfinite(a) or not math.isfinite(b):
+        raise ValueError("operands must be finite numbers")
 
     # appelle l'opérateur avec les deux opérandes et traduit la division par zéro
     try:
