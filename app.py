@@ -73,8 +73,11 @@ def calculate(expr: str):
         # soulève une erreur si au moins une opérande n'est pas un nombre
         raise ValueError("operands must be numbers")
 
-    # appelle l'opérateur avec les deux opérandes et retourne le résultat
-    return OPS[op_char](a, b)
+    # appelle l'opérateur avec les deux opérandes et traduit la division par zéro
+    try:
+        return OPS[op_char](a, b)
+    except ZeroDivisionError as error:
+        raise ValueError("division by zero") from error
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
