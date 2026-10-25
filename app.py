@@ -16,20 +16,19 @@ OPS = {
 
 def calculate(expr: str):
     """
-    calcule une expression arithmétique simple entre deux opérateurs binaires.
-    utilise un des opérateurs suivants: +, -, * ou /.
-    l'opération doit se faire entre deux nombres.
-    les espaces sont ignorés.
+    Calcule une expression arithmétique composée des opérateurs +, -, * et /.
+    La multiplication et la division sont évaluées avant l'addition et la
+    soustraction. Les expressions ne peuvent pas contenir d'opérateurs unaires.
 
     Args: 
-        expr (str): expression d'entrée comme: "2 + 2" or "3/4"
+        expr (str): expression d'entrée comme "2 + 2", "3/4" ou "2+3*4"
 
     Returns:
         float: resultat de l'opération et les deux opérandes de l'expression
     
     Raises:
-        ValueError: si l'expression n'est pas une chaîne de caractère, si l'expression est vide, 
-        si l'expression contient plus qu'un opérateur ou si les opérandes ne sont pas nes nombres valides
+        ValueError: si l'expression est vide, mal formée ou contient des opérandes invalides,
+        ou si une division par zéro est demandée
 
     Examples:
         >>> calculate("2 + 2")
@@ -44,51 +43,55 @@ def calculate(expr: str):
     # retire les espaces en début et en fin sans fusionner les chiffres
     s = expr.strip()
 
-    # mise en place de la lecture de l'expression
-    op_pos = -1
-    op_char = None
-
-    # passe sur chaque caractère et vérifie si le caractère est l'opérateur et on enregistre la position 
-    # de cet opérateur. Si on en trouve un autre, on soulève une erreur.
-    for i, ch in enumerate(s):
-        if ch in OPS:
-            if op_pos != -1:
-                raise ValueError("only one operator is allowed")
-            op_pos = i
-            op_char = ch
-
-    # si l'opétateur n'est pas trouvé, s'il n'y a pas d'opérande avant ou après l'opérateur, on soulève
-    # une exception
-    if op_pos <= 0 or op_pos >= len(s) - 1:
-        # operator at start/end or not found
-        raise ValueError("invalid expression format")
-
-    #opérande de gauche
-    left = s[:op_pos]
-    #opérande de droite
-    right = s[op_pos+1:]
-
-    # Seuls les entiers et la notation scientifique sans signe d'exposant sont acceptés.
     operand_pattern = r"\d+(?:[eE]\d+)?"
-    if not re.fullmatch(operand_pattern, left.strip()) or not re.fullmatch(operand_pattern, right.strip()):
+    token_pattern = re.compile(r"\d+(?:[eE]\d+)?|[+*/-]")
+    tokens = []
+    position = 0
+    for match in token_pattern.finditer(s):
+        if s[position:match.start()].strip():
+            raise ValueError("operands must be valid numbers")
+        tokens.append(match.group())
+        position = match.end()
+    if s[position:].strip():
         raise ValueError("operands must be valid numbers")
 
-    # on essaie de caster les opérandes en float pour s'assurer que ce sont des nombres
-    try:
-        a = float(left.strip())
-        b = float(right.strip())
-    except (ValueError, OverflowError):
-        # soulève une erreur si au moins une opérande n'est pas un nombre
-        raise ValueError("operands must be numbers")
+    if len(tokens) < 3 or len(tokens) % 2 == 0:
+        raise ValueError("invalid expression format")
+    for index, token in enumerate(tokens):
+        if index % 2 == 0:
+            if not re.fullmatch(operand_pattern, token):
+                raise ValueError("operands must be valid numbers")
+        elif token not in OPS:
+            raise ValueError("invalid expression format")
 
-    if not math.isfinite(a) or not math.isfinite(b):
+    try:
+        operands = [float(tokens[index]) for index in range(0, len(tokens), 2)]
+    except (ValueError, OverflowError) as error:
+        raise ValueError("operands must be numbers") from error
+    if any(not math.isfinite(operand) for operand in operands):
         raise ValueError("operands must be finite numbers")
 
-    # appelle l'opérateur avec les deux opérandes et traduit la division par zéro
-    try:
-        return OPS[op_char](a, b)
-    except ZeroDivisionError as error:
-        raise ValueError("division by zero") from error
+    values = [operands[0]]
+    operators = []
+    for operator, operand in zip(tokens[1::2], operands[1:]):
+        if operator == '*':
+            values[-1] *= operand
+        elif operator == '/':
+            try:
+                values[-1] = divide(values[-1], operand)
+            except ZeroDivisionError as error:
+                raise ValueError("division by zero") from error
+        else:
+            operators.append(operator)
+            values.append(operand)
+
+    if not math.isfinite(values[0]) or any(not math.isfinite(value) for value in values):
+        raise ValueError("result must be finite")
+
+    result = values[0]
+    for operator, value in zip(operators, values[1:]):
+        result = OPS[operator](result, value)
+    return result
 
 @app.route('/', methods=['GET', 'POST'])
 def index():

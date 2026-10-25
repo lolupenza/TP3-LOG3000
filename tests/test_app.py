@@ -76,6 +76,19 @@ class TestCalculate(unittest.TestCase):
     def test_addition(self):
         self.assertEqual(16, calculate('8+8'))
 
+    def test_calculs_successifs(self):
+        self.assertEqual(9, calculate('2+3+4'))
+        self.assertEqual(14, calculate('2+3*4'))
+        self.assertEqual(26, calculate('2*3+4*5'))
+        self.assertEqual(5, calculate('10-3-2'))
+        self.assertEqual(5, calculate('20/2/2'))
+
+    def test_calculs_successifs_invalides(self):
+        for expression in ('2++3', '2+*3', '2 3+4'):
+            with self.subTest(expression=expression):
+                with self.assertRaises(ValueError):
+                    calculate(expression)
+
     def test_division_entier(self):
         self.assertEqual(5, calculate('10/2'))
 

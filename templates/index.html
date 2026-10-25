@@ -37,13 +37,20 @@
 </div>
 
 <script>
+   const display = document.getElementById('display');
+   let resultShown = display.value !== '' && Number.isFinite(Number(display.value));
+
    function appendToDisplay(value) {
-      const display = document.getElementById('display');
+      if (resultShown && /^[0-9]$/.test(value)) {
+         display.value = '';
+      }
       display.value += value;
+      resultShown = false;
    }
 
    function clearDisplay() {
-      document.getElementById('display').value = '';
+      display.value = '';
+      resultShown = false;
    }
 </script>
 </body>
